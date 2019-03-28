@@ -80,10 +80,74 @@
             <ul id="list"></ul>
         </div>
     </div>
+    <div class="container">
+        <h1>Selected</h1>
+        <ul id="selected"></ul>
+    </div>
 
 </body>
 
 <script>
+    const characters = [];
+    const list = document.getElementById("list");
+    const search = document.querySelector("input");
+
+    const selectedNames = [];
+    const selectedList = document.getElementById("selected");
+
+    hideList();
+
+    fetch("https://swapi.co/api/people")
+        .then(response => response.json())
+        .then(response => characters.push(...response.results));
+
+    function render(array) {
+        showList();
+        const html = array.join('');
+        list.innerHTML = html;
+
+        const newItems = document.querySelectorAll('#list>li');
+
+        newItems.forEach((e) => {
+            e.addEventListener('click', (event) => {
+                addToSelection(event.target.innerText);
+            })
+        });
+    }
+
+    function filterText() {
+        const filtered = characters
+            .filter(e => e.name.toLowerCase().includes(this.value.toLowerCase()))
+            .map(e => `<li>${e.name}</li>`);
+
+        if (filtered.length > 0 && this.value.length > 0)
+            render(filtered);
+        else
+            hideList();
+    }
+
+    search.addEventListener('keyup', filterText);
+
+    function showList() {
+        list.style.display = 'block';
+    }
+
+    function hideList() {
+        list.style.display = 'none';
+        list.innerHTML = null;
+    }
+
+    function addToSelection(name) {
+        if (selectedNames.includes(name))
+            return;
+
+        selectedNames.push(name);
+
+        const newItem = document.createElement('li')
+        newItem.innerText = name;
+
+        selectedList.appendChild(newItem);
+    }
 </script>
 
 </html>
